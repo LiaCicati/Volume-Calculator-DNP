@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using VolumeWebService.Data;
 using VolumeWebService.DataAccess;
 using VolumeWebService.VolumeCalculator;
 
@@ -13,20 +14,19 @@ namespace VolumeWebService.Controllers
     public class CalculatorController : ControllerBase
     {
         private Calculator _calculator;
-        private CalculatorDbContext _ctx;
+        private IVolumeResultRepository _volumeResultRepository;
 
-        public CalculatorController(Calculator calculator, CalculatorDbContext context)
+        public CalculatorController(Calculator calculator, IVolumeResultRepository repository)
         {
             this._calculator = calculator;
-            this._ctx = context;
+            this._volumeResultRepository = repository;
         }
 
         [HttpGet("cylinder/height={height}&radius={radius}")]
-        public VolumeResult CalculateCylinderVolume(double height,  double radius)
+        public VolumeResult CalculateCylinderVolume(double height, double radius)
         {
             VolumeResult result = _calculator.CalculateVolumeCylinder(height, radius);
-            _ctx.VolumeResults.AddAsync(result);
-            _ctx.SaveChangesAsync();
+            _volumeResultRepository.AddResult(result);
             string resultAsJson = JsonConvert.SerializeObject(result);
             Console.WriteLine(resultAsJson);
             return result;
@@ -36,8 +36,7 @@ namespace VolumeWebService.Controllers
         public VolumeResult CalculateConeVolume(double radius, double height)
         {
             VolumeResult result = _calculator.CalculateVolumeCone(radius, height);
-            _ctx.VolumeResults.AddAsync(result);
-            _ctx.SaveChangesAsync();
+            _volumeResultRepository.AddResult(result);
             string resultAsJson = JsonConvert.SerializeObject(result);
             Console.WriteLine(resultAsJson);
             return result;
@@ -47,7 +46,7 @@ namespace VolumeWebService.Controllers
         [Route("results")]
         public List<VolumeResult> GetAllResult()
         {
-            return _ctx.VolumeResults.ToList();
+            return _volumeResultRepository.GetAllResults();
         }
     }
 }

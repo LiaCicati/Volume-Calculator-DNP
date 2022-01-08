@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using VolumeWebService.Data;
+using VolumeWebService.Data.Impl;
 using VolumeWebService.DataAccess;
 using VolumeWebService.VolumeCalculator;
 
@@ -35,6 +37,7 @@ namespace VolumeWebService
             });
             services.AddSingleton<Calculator>();
             services.AddDbContext<CalculatorDbContext>();
+            services.AddScoped<IVolumeResultRepository, VolumeResultRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
