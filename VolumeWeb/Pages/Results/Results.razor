@@ -1,0 +1,50 @@
+@page "/results"
+@using VolumeWeb.Data
+@using VolumeWebService.VolumeCalculator
+@inject ICalculatorService _calculatorService
+<h3>Results</h3>
+
+@if (_volumeResults == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Type</th>
+            <th>Height</th>
+            <th>Radius</th>
+            <th>Volume</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var result in _volumeResults)
+        {
+            <tr>
+                <td>@result.Id</td>
+                <td>@result.Type</td>
+                <td>@result.Height</td>
+                <td>@result.Radius</td>
+                <td>@result.Volume</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    IList<VolumeResult> _volumeResults = new List<VolumeResult>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _volumeResults = await _calculatorService.GetAllResultAsync();
+        StateHasChanged();
+    }
+
+}

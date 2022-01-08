@@ -1,0 +1,74 @@
+@page "/calculateVolume"
+@using VolumeWeb.Data
+@using VolumeWebService.VolumeCalculator
+@inject ICalculatorService _calculatorService
+@inject NavigationManager _navigationManager
+<h3>CalculateVolume</h3>
+
+<EditForm Model="@_volumeResult" OnValidSubmit="@CalculateVolumeAsync">
+
+    <div class="form-group">
+        Type:<br/>
+        <InputSelect @bind-Value="@_volumeResult.Type">
+            <option value="">-- Select --</option>
+            <option value="cylinder">cylinder</option>
+
+            <option value="cone">cone</option>
+
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        Height:<br/>
+        <InputNumber @bind-Value="_volumeResult.Height"/>
+    </div>
+    <div class="form-group">
+        Radius:<br/>
+        <InputNumber @bind-Value="_volumeResult.Radius"/>
+    </div>
+    @if (_volumeResult != null)
+    {
+        <p> @_volumeResult.Volume</p>
+    }
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="input__error-message">@_errorMessage</div>
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Calculate</button>
+    </p>
+</EditForm>
+
+@code {
+
+    private VolumeResult _volumeResult = new VolumeResult()
+    {
+        Type = ""
+    };
+
+    private string _errorMessage;
+
+
+    private async Task CalculateVolumeAsync()
+    {
+        try
+        {
+            if (_volumeResult.Type.Equals(""))
+            {
+                _errorMessage = "Please select an item from the list";
+            }
+            if (_volumeResult.Type.Equals("cylinder"))
+            {
+                _volumeResult = await _calculatorService.CalculateCylinderVolumeAsync(_volumeResult.Height, _volumeResult.Radius);
+            }
+            else if (_volumeResult.Type.Equals("cone"))
+            {
+                _volumeResult = await _calculatorService.CalculateConeVolumeAsync(_volumeResult.Radius, _volumeResult.Height);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorMessage = e.Message;
+        }
+    }
+
+}
